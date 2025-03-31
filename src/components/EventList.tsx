@@ -1,31 +1,44 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { FixedSizeList as List } from 'react-window';
-import { Event } from '../types/types';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '../store/store';
+import { fetchEventsSuccess, updateTimestamp } from '../store/actions';
 import { formatTime } from '../utils/helpers';
 
-const EventsList: React.FC = () => {
-  const [events, setEvents] = useState<Event[]>([]);
+const EventList: React.FC = () => {
+  const dispatch = useDispatch();
+  const events = useSelector((state: RootState) => state.events.events);
 
   useEffect(() => {
     fetch('/events.json')
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        return response.json();
-      })
-      .then((data) => setEvents(data))
-      .catch((error) => {
-        console.error('Error loading events:', error);
-        setEvents([]);
-      });
-  }, []);
+    .then((response) => response.json())
+    .then((data) => {
+      const transformedEvents = data.map((event: any) => ({
+        id: Math.random(),
+        timestamp: event.timestamp,
+        duration: event.duration ?? 0,
+        zone: event.zone,
+      }));
+      dispatch(fetchEventsSuccess(transformedEvents));
+    })
+    .catch((error) => console.error('Error loading events:', error));
+}, [dispatch]);
+
+  const handleEventClick = (timestamp: number) => {
+    dispatch(updateTimestamp(timestamp * 1000));
+  };
 
   const Row = ({ index, style }: { index: number; style: React.CSSProperties }) => {
     const event = events[index];
+
+    if (!event) return null;
+
     return (
-      <div style={style}>
-        {formatTime(event.timestamp)} (Duration: {event.duration.toFixed(2)} s)
+      <div
+        style={{ ...style, cursor: 'pointer', padding: '5px', borderBottom: '1px solid #ccc' }}
+        onClick={() => handleEventClick(event.timestamp)}
+      >
+        {formatTime(event.timestamp)} (Duration: {event.duration?.toFixed(2)} s)
       </div>
     );
   };
@@ -33,16 +46,11 @@ const EventsList: React.FC = () => {
   return (
     <div className="events-container">
       <h2>Events</h2>
-      <List
-        height={400}
-        itemCount={events.length}
-        itemSize={30}
-        width={300}
-      >
+      <List height={400} itemCount={events.length} itemSize={30} width={300}>
         {Row}
       </List>
     </div>
   );
 };
 
-export default EventsList;
+export default EventList;

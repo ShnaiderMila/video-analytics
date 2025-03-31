@@ -1,13 +1,14 @@
-export interface Event {
-    id: number;
-    timestamp: number;
-    x: number;
-    y: number;
+export interface Zone {
+    left: number;
+    top: number;
     width: number;
     height: number;
-}
-
-export interface AppState {
-    event: Event[];
-    currentTimestamp: number;
-}
+  }
+  
+  export interface Event {
+    id: number;
+    timestamp: number;
+    duration: number;
+    zone: Zone;
+  }
+  

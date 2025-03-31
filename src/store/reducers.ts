@@ -18,7 +18,7 @@ const eventsReducer = createReducer(initialState, (builder) => {
       state.events = action.payload;
     })
     .addCase(updateTimestamp, (state, action) => {
-      state.currentTimestamp = action.payload;
+    state.currentTimestamp = action.payload;
     });
 });
 
