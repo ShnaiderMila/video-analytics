@@ -12,7 +12,6 @@ const EventMarker: React.FC<EventMarkerProps> = ({ videoRef, events }) => {
   const currentTimestamp = useSelector((state: RootState) => state.events.currentTimestamp);
   const [scale, setScale] = useState({ x: 1, y: 1 });
 
-  // Теперь нам не нужен videoRect, т.к. родитель уже position: relative и занимает весь размер видео
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
@@ -39,10 +38,9 @@ const EventMarker: React.FC<EventMarkerProps> = ({ videoRef, events }) => {
     };
   }, [videoRef]);
 
-  // Переводим timestamp и duration из секунд в миллисекунды
   const activeEvents = events.filter((event) => {
     const start = event.timestamp * 1000;
-    const duration = event.duration > 0 ? event.duration * 1000 : 500; // минимум 500 мс
+    const duration = event.duration > 0 ? event.duration * 1000 : 500;
     const end = start + duration;
     return event.zone && start <= currentTimestamp && end > currentTimestamp;
   });
