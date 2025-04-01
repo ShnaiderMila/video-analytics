@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { FixedSizeList as List } from 'react-window';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../store/store';
-import { fetchEventsSuccess, updateTimestamp } from '../store/actions';
+import { fetchEventsRequest, updateTimestamp } from '../store/actions';
 import { formatTime } from '../utils/helpers';
 
 const EventList: React.FC = () => {
@@ -10,19 +10,8 @@ const EventList: React.FC = () => {
   const events = useSelector((state: RootState) => state.events.events);
 
   useEffect(() => {
-    fetch('/events.json')
-    .then((response) => response.json())
-    .then((data) => {
-      const transformedEvents = data.map((event: any) => ({
-        id: Math.random(),
-        timestamp: event.timestamp,
-        duration: event.duration ?? 0,
-        zone: event.zone,
-      }));
-      dispatch(fetchEventsSuccess(transformedEvents));
-    })
-    .catch((error) => console.error('Error loading events:', error));
-}, [dispatch]);
+    dispatch(fetchEventsRequest());
+  }, [dispatch]);
 
   const handleEventClick = (timestamp: number) => {
     dispatch(updateTimestamp(timestamp * 1000));
@@ -35,7 +24,12 @@ const EventList: React.FC = () => {
 
     return (
       <div
-        style={{ ...style, cursor: 'pointer', padding: '5px', borderBottom: '1px solid #ccc' }}
+        style={{
+          ...style,
+          cursor: 'pointer',
+          padding: '5px',
+          borderBottom: '1px solid #ccc',
+        }}
         onClick={() => handleEventClick(event.timestamp)}
       >
         {formatTime(event.timestamp)} (Duration: {event.duration?.toFixed(2)} s)
